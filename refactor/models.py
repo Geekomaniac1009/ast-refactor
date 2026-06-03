@@ -21,9 +21,9 @@ from typing import Optional
 class Severity(Enum):
     """
     How bad is this finding?
-    ERROR   → likely causes a crash or security vulnerability at runtime
-    WARNING → dangerous under specific conditions (e.g. only on error paths)
-    NOTE    → code quality / maintainability issue, not immediately dangerous
+    ERROR   -> likely causes a crash or security vulnerability at runtime
+    WARNING -> dangerous under specific conditions (e.g. only on error paths)
+    NOTE    -> code quality / maintainability issue, not immediately dangerous
     """
     ERROR   = "error"
     WARNING = "warning"
@@ -56,7 +56,7 @@ class FixKind(Enum):
     ADD_NULL_CHECK          = "add_null_check"      # insert if (ptr == NULL)
     REORDER_OPS             = "reorder_ops"         # move statements
     ADD_BOUNDS_CHECK        = "add_bounds_check"    # insert bounds guard
-    WIDEN_TYPE              = "widen_type"          # e.g. int → long before multiply
+    WIDEN_TYPE              = "widen_type"          # e.g. int to long before multiply
     NULLIFY_AFTER_FREE      = "nullify_after_free"  # ptr = NULL after free()
     REPLACE_CALL            = "replace_call"        # swap unsafe API for safe variant
     OTHER                   = "other"               # LLM suggested something structural
@@ -67,12 +67,12 @@ class PointerStatus(Enum):
     State machine values for pointer lifetime tracking.
     Transitions are enforced in pointer_state.py.
 
-    UNKNOWN       → we've seen the variable declared but don't know its value yet
-    UNALLOCATED   → declared, explicitly not yet allocated (e.g. int *p = NULL)
-    ALLOCATED     → malloc/calloc/realloc/fopen returned and assigned to this variable
-    ALIASED       → another pointer variable points to the same allocation
-    FREED         → free() or fclose() was called on this pointer
-    INVALID       → used after free, or double-freed — a bug has been detected
+    UNKNOWN       : we've seen the variable declared but don't know its value yet
+    UNALLOCATED   : declared, explicitly not yet allocated (e.g. int *p = NULL)
+    ALLOCATED     : malloc/calloc/realloc/fopen returned and assigned to this variable
+    ALIASED       : another pointer variable points to the same allocation
+    FREED         : free() or fclose() was called on this pointer
+    INVALID       : used after free, or double-freed — a bug has been detected
     """
     UNKNOWN       = auto()
     UNALLOCATED   = auto()
@@ -136,7 +136,7 @@ class CFGNode:
     is_exit:        bool = False
 
     # Computed by pointer_state.py during analysis —
-    # maps variable name → PointerStatus at the END of this block
+    # maps variable name to PointerStatus at the END of this block
     pointer_states: dict[str, PointerStatus] = field(default_factory=dict)
 
 
