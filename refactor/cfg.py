@@ -627,15 +627,19 @@ def _dfs_paths(
         return
 
     if current in visited:
-        # Cycle detected (loop back-edge) — treat as path termination
-        # We've already visited this block; don't recurse further
         return
 
-    visited = visited | {current}  # immutable update — each recursive frame has its own set
+    visited = visited | {current}
 
-    for successor in cfg.successors(current):
-        _dfs_paths(cfg, successor.id, target, path, visited, results, max_paths)
-
+    for edge in cfg.edges:
+        if edge.src != current:
+            continue
+        # Cut loop back-edges explicitly — following them would
+        # recurse infinitely. The loop body has already been added
+        # to the path by visiting the body block once.
+        if edge.condition == "loop":
+            continue
+        _dfs_paths(cfg, edge.dst, target, path, visited, results, max_paths)
 
 def get_block_statements(block: CFGNode, source_bytes: bytes) -> list[str]:
     """

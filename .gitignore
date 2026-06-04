@@ -155,6 +155,7 @@ activemq-data/
 .venv
 env/
 venv/
+node_modules/
 ENV/
 env.bak/
 venv.bak/
@@ -162,7 +163,8 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
-
+package-lock.json
+package.json
 # Rope project settings
 .ropeproject
 

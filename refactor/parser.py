@@ -26,8 +26,9 @@ from tree_sitter import Language, Node, Parser
 # Do it once at import time, reuse everywhere.
 # ─────────────────────────────────────────────
 
-C_LANGUAGE = Language(tree_sitter_c.language())
-_PARSER = Parser(C_LANGUAGE)
+C_LANGUAGE = Language(tree_sitter_c.language(), "c")
+_PARSER = Parser()
+_PARSER.set_language(C_LANGUAGE)
 
 
 # ─────────────────────────────────────────────
