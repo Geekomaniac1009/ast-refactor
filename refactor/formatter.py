@@ -46,6 +46,30 @@ from refactor.llm_client import get_usage
 
 _console      = Console(highlight=False)
 _err_console  = Console(stderr=True, highlight=False)
+_no_colour    = False
+
+
+def configure_output(no_colour: bool = False) -> None:
+    """Configure the module-level consoles for color or monochrome output."""
+    global _console, _err_console, _no_colour
+    _no_colour = no_colour
+    _console = Console(highlight=False, no_color=no_colour)
+    _err_console = Console(stderr=True, highlight=False, no_color=no_colour)
+
+
+def stdout_console() -> Console:
+    """Return the console used for standard output."""
+    return _console
+
+
+def stderr_console() -> Console:
+    """Return the console used for diagnostics."""
+    return _err_console
+
+
+def is_no_colour() -> bool:
+    """Return True when monochrome output has been requested."""
+    return _no_colour
 
 
 # ─────────────────────────────────────────────
@@ -186,12 +210,18 @@ def print_json(
 
 def print_error(message: str) -> None:
     """Print a diagnostic error to stderr."""
-    _err_console.print(f"[bold red]error:[/bold red] {message}")
+    if _no_colour:
+        _err_console.print(f"error: {message}")
+    else:
+        _err_console.print(f"[bold red]error:[/bold red] {message}")
 
 
 def print_warning(message: str) -> None:
     """Print a diagnostic warning to stderr."""
-    _err_console.print(f"[bold yellow]warning:[/bold yellow] {message}")
+    if _no_colour:
+        _err_console.print(f"warning: {message}")
+    else:
+        _err_console.print(f"[bold yellow]warning:[/bold yellow] {message}")
 
 
 # ─────────────────────────────────────────────

@@ -1,5 +1,10 @@
+import io
+
+from rich.console import Console
+
 # tests/test_formatter.py
 from refactor.formatter import _finding_to_dict, _truncate_explanation
+from refactor import formatter
 from refactor.models import Finding, FindingKind, Severity, SourceLocation
 
 def _make_finding():
@@ -37,3 +42,35 @@ def test_truncate_explanation_no_truncation_needed():
     result = _truncate_explanation(text, max_sentences=2)
     assert result == text
     assert "…" not in result
+
+
+def test_configure_output_disables_ansi_escape_codes():
+    buffer = io.StringIO()
+    original_err_console = formatter._err_console
+    original_no_colour = formatter._no_colour
+
+    try:
+        formatter._no_colour = False
+        formatter._err_console = Console(
+            file=buffer,
+            force_terminal=True,
+            highlight=False,
+        )
+        formatter.print_error("boom")
+        assert "\x1b[" in buffer.getvalue()
+
+        buffer.seek(0)
+        buffer.truncate(0)
+
+        formatter._err_console = Console(
+            file=buffer,
+            force_terminal=True,
+            highlight=False,
+            no_color=True,
+        )
+        formatter._no_colour = True
+        formatter.print_error("boom")
+        assert "\x1b[" not in buffer.getvalue()
+    finally:
+        formatter._err_console = original_err_console
+        formatter._no_colour = original_no_colour

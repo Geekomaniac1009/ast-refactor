@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ast-refactor demo</title>
+    <meta
+      name="description"
+      content="Interactive demo that builds an AST as you type, then runs a staged analysis with a mocked LLM response."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb bg-orb-a"></div>
+    <div class="bg-orb bg-orb-b"></div>
+
+    <main class="shell">
+      <section class="hero card">
+        <p class="eyebrow">ast-refactor interactive demo</p>
+        <h1>Type C, watch the AST assemble, then step through analysis.</h1>
+        <p class="lede">
+          A standalone, modular demo built for GitHub README embeds and product walkthroughs.
+          It keeps the parser, renderer, and pipeline isolated so you can swap in a real backend later.
+        </p>
+        <div class="hero-metrics">
+          <div>
+            <span class="metric-label">Character limit</span>
+            <strong id="char-limit">5,000</strong>
+          </div>
+          <div>
+            <span class="metric-label">Minimum useful input</span>
+            <strong>40 chars</strong>
+          </div>
+          <div>
+            <span class="metric-label">Pipeline stages</span>
+            <strong>5</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="card editor-card">
+          <div class="card-head">
+            <div>
+              <p class="section-label">Editor</p>
+              <h2>Live code input</h2>
+            </div>
+            <div class="chip-row">
+              <span class="chip" id="char-count">0 / 5,000</span>
+              <span class="chip chip-muted" id="status-chip">Ready</span>
+            </div>
+          </div>
+
+          <textarea id="code-input" spellcheck="false" maxlength="5000"></textarea>
+
+          <div class="controls">
+            <div class="sample-strip" id="sample-strip"></div>
+            <div class="button-row">
+              <button id="reset-button" class="button button-secondary" type="button">Reset</button>
+              <button id="analyze-button" class="button button-primary" type="button">Analyze</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-two">
+          <div class="card panel-card">
+            <div class="card-head">
+              <div>
+                <p class="section-label">Pipeline</p>
+                <h2>Analysis flow</h2>
+              </div>
+            </div>
+            <div id="pipeline-list" class="stage-list"></div>
+          </div>
+
+          <div class="card panel-card">
+            <div class="card-head">
+              <div>
+                <p class="section-label">AST</p>
+                <h2>Growing tree</h2>
+              </div>
+              <span class="chip chip-muted" id="ast-summary">Waiting for code</span>
+            </div>
+            <div id="ast-view" class="ast-view"></div>
+          </div>
+        </div>
+
+        <div class="grid-two bottom-grid">
+          <div class="card panel-card">
+            <div class="card-head">
+              <div>
+                <p class="section-label">Findings</p>
+                <h2>Annotated issues</h2>
+              </div>
+              <span class="chip chip-muted" id="finding-count">0 findings</span>
+            </div>
+            <div id="findings-view" class="finding-list"></div>
+          </div>
+
+          <div class="card panel-card">
+            <div class="card-head">
+              <div>
+                <p class="section-label">Mock LLM</p>
+                <h2>Streaming answer</h2>
+              </div>
+              <span class="chip chip-muted" id="llm-state">Idle</span>
+            </div>
+            <pre id="llm-output" class="llm-output">Click Analyze to generate a staged response.</pre>
+            <div id="selection-view" class="selection-view">No AST node selected.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
