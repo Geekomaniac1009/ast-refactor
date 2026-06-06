@@ -310,29 +310,10 @@ Each limitation is documented in findings and SARIF output. Detectors can lower 
 
 ## 🤝 Contributing
 
-1. Add a test case in `tests/detectors/`
-2. Implement a detector in `refactor/detectors/`
+1. Implement a detector in `refactor/detectors/`
+2. Add a test case in `test_detectors/`
 3. Register it in `DetectorRegistry.default()`
 4. Run tests: `pytest tests/`
 5. Open a PR
-
-## 📝 License
-
-[Specify your license here]
-
-## 🎓 Portfolio Notes
-
-This project demonstrates:
-
-- **Static analysis fundamentals**: AST manipulation, CFG construction, dataflow analysis
-- **Real-world verification**: Combining deterministic checks with probabilistic (LLM) reasoning
-- **DevOps integration**: SARIF export, GitHub Actions, CI/CD best practices
-- **Clean architecture**: Thin, testable layers; data contracts; dependency injection
-- **Production mindset**: Error recovery, graceful degradation, detailed logging
-- **Security domain knowledge**: Memory safety, pointer state machines, C semantics
-
-The hybrid approach (deterministic + LLM + verification) is novel and directly applicable to production codebases where false positives are expensive and unverified suggestions are risky.
-
----
 
 **Questions?** Open an issue or reach out. Contributions welcome!
