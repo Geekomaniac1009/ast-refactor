@@ -25,7 +25,7 @@
         <div class="hero-metrics">
           <div>
             <span class="metric-label">Character limit</span>
-            <strong id="char-limit">5,000</strong>
+            <strong id="char-limit">1,200</strong>
           </div>
           <div>
             <span class="metric-label">Minimum useful input</span>
@@ -46,12 +46,12 @@
               <h2>Live code input</h2>
             </div>
             <div class="chip-row">
-              <span class="chip" id="char-count">0 / 5,000</span>
+              <span class="chip" id="char-count">0 / 1,200</span>
               <span class="chip chip-muted" id="status-chip">Ready</span>
             </div>
           </div>
 
-          <textarea id="code-input" spellcheck="false" maxlength="5000"></textarea>
+          <textarea id="code-input" spellcheck="false" maxlength="1200"></textarea>
 
           <div class="controls">
             <div class="sample-strip" id="sample-strip"></div>
@@ -95,6 +95,10 @@
               <span class="chip chip-muted" id="finding-count">0 findings</span>
             </div>
             <div id="findings-view" class="finding-list"></div>
+            <div class="selection-block">
+              <p class="section-label">Selection</p>
+              <div id="selection-view" class="selection-view">No AST node selected.</div>
+            </div>
           </div>
 
           <div class="card panel-card">
@@ -105,8 +109,7 @@
               </div>
               <span class="chip chip-muted" id="llm-state">Idle</span>
             </div>
-            <pre id="llm-output" class="llm-output">Click Analyze to generate a staged response.</pre>
-            <div id="selection-view" class="selection-view">No AST node selected.</div>
+            <div id="llm-output" class="llm-output">Click Analyze to generate a staged response.</div>
           </div>
         </div>
       </section>

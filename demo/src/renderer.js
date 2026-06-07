@@ -176,6 +176,27 @@ export function renderResponse(container, text) {
   container.textContent = text;
 }
 
+export function renderDiff(container, text) {
+  const lines = text.split("\n");
+  container.replaceChildren();
+
+  for (const line of lines) {
+    const row = document.createElement("span");
+    row.className = "diff-line";
+    row.textContent = line;
+
+    if (line.startsWith("+") && !line.startsWith("+++")) {
+      row.classList.add("diff-add");
+    } else if (line.startsWith("-") && !line.startsWith("---")) {
+      row.classList.add("diff-remove");
+    } else if (line.startsWith("@@")) {
+      row.classList.add("diff-hunk");
+    }
+
+    container.append(row);
+  }
+}
+
 export function setChipText(element, text) {
   element.textContent = text;
 }

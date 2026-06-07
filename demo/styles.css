@@ -5,11 +5,11 @@
   --card: rgba(10, 18, 32, 0.78);
   --card-border: rgba(144, 179, 255, 0.16);
   --text: #f7fbff;
-  --muted: #94a8c7;
-  --accent: #7be3ff;
-  --accent-2: #ffbf69;
+  --muted: #4c72ab;
+  --accent: #06a7d4;
+  --accent-2: #ecaf5e;
   --accent-3: #8ef0b1;
-  --danger: #ff6b8b;
+  --danger: #800520;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
   --radius: 24px;
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -242,6 +242,11 @@ textarea:focus {
   color: var(--text);
 }
 
+.sample-button.active {
+  background: rgba(123, 227, 255, 0.2);
+  border: 1px solid rgba(123, 227, 255, 0.42);
+}
+
 .sample-button:hover,
 .button:hover {
   transform: translateY(-1px);
@@ -344,6 +349,11 @@ textarea:focus {
   min-height: 320px;
 }
 
+.ast-view {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
 .ast-node {
   position: relative;
   padding: 12px 14px;
@@ -436,11 +446,34 @@ textarea:focus {
   padding: 18px;
   white-space: pre-wrap;
   font-family: var(--mono);
+  overflow: auto;
 }
 
 .selection-view {
-  margin-top: 14px;
   padding: 14px 16px;
+}
+
+.selection-block {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.diff-line {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.diff-line.diff-add {
+  color: var(--accent-3);
+}
+
+.diff-line.diff-remove {
+  color: var(--danger);
+}
+
+.diff-line.diff-hunk {
+  color: var(--accent-2);
 }
 
 @keyframes rise {

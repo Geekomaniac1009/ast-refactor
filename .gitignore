@@ -76,6 +76,7 @@ docs/_build/
 .pybuilder/
 target/
 
+demo/playwright.config.js
 # Jupyter Notebook
 .ipynb_checkpoints
 

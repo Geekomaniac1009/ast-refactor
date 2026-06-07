@@ -7,6 +7,7 @@ import {
 } from "./core.js";
 import {
   renderAst,
+  renderDiff,
   renderFindings,
   renderResponse,
   renderSelection,
@@ -17,7 +18,7 @@ import {
 import { SAMPLES, DEFAULT_SAMPLE } from "./samples.js";
 
 const editor = document.getElementById("code-input");
-const sampleSelect = document.getElementById("sample-select");
+const sampleStrip = document.getElementById("sample-strip");
 const charCount = document.getElementById("char-count");
 const charLimit = document.getElementById("char-limit");
 const statusChip = document.getElementById("status-chip");
@@ -39,6 +40,7 @@ const state = {
   completedStages: new Set(),
   currentModel: null,
   busy: false,
+  selectedSampleIndex: 0,
 };
 
 charLimit.textContent = MAX_CODE_CHARS.toLocaleString();
@@ -209,7 +211,7 @@ async function runAnalysis() {
 
   completed.add("verify");
   setStageState(null, completed);
-  renderResponse(llmOutput, `${streamed}\n\nVerification: the suggestion keeps the shape of the function intact and reads like a stable, reviewable fix.`);
+  renderDiff(llmOutput, `${streamed}\n\nVerification: the suggestion keeps the shape of the function intact and reads like a stable, reviewable fix.`);
 
   state.busy = false;
   editor.disabled = false;
@@ -223,32 +225,39 @@ function pause(ms) {
 }
 
 function populateSamples() {
-  sampleSelect.replaceChildren();
+  sampleStrip.replaceChildren();
 
   SAMPLES.forEach((sample, index) => {
-    const option = document.createElement("option");
-    option.value = String(index);
-    option.textContent = sample.label;
-    sampleSelect.append(option);
-  });
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "sample-button";
+    button.textContent = sample.label;
 
-  sampleSelect.value = String(Math.max(0, SAMPLES.findIndex((sample) => sample.label === DEFAULT_SAMPLE.label)));
+    if (index === state.selectedSampleIndex) {
+      button.classList.add("active");
+    }
+
+    button.addEventListener("click", () => {
+      state.selectedSampleIndex = index;
+      editor.value = sample.code;
+      state.selectedNodeId = null;
+      state.selectedFindingId = null;
+      populateSamples();
+      updateCharCount();
+      refreshPreview();
+    });
+
+    sampleStrip.append(button);
+  });
 }
 
 function loadDefaultSample() {
+  state.selectedSampleIndex = Math.max(0, SAMPLES.findIndex((sample) => sample.label === DEFAULT_SAMPLE.label));
+  populateSamples();
   editor.value = DEFAULT_SAMPLE.code;
   updateCharCount();
   refreshPreview();
 }
-
-sampleSelect.addEventListener("change", () => {
-  const sample = SAMPLES[Number(sampleSelect.value)] || DEFAULT_SAMPLE;
-  editor.value = sample.code;
-  state.selectedNodeId = null;
-  state.selectedFindingId = null;
-  updateCharCount();
-  refreshPreview();
-});
 
 editor.addEventListener("input", () => {
   updateCharCount();
@@ -267,7 +276,6 @@ resetButton.addEventListener("click", () => {
   refreshPreview();
 });
 
-populateSamples();
 renderStages(pipelineList, STAGES, null, new Set());
 loadDefaultSample();
 llmState.textContent = "Idle";

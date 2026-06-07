@@ -1,4 +1,4 @@
-const MAX_CODE_CHARS = 5000;
+const MAX_CODE_CHARS = 1200;
 const MIN_ANALYSIS_CHARS = 40;
 
 const STAGES = [
@@ -258,9 +258,14 @@ function getAllocationInfo(code) {
   return null;
 }
 
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function findFirstDerefLine(code, variable) {
   const lines = code.split(/\r?\n/);
-  const derefRegex = new RegExp(`(?:\*\s*${variable}\b|${variable}\s*->|${variable}\s*\[)`);
+  const safeVariable = escapeRegExp(variable);
+  const derefRegex = new RegExp(`(?:\\*\\s*${safeVariable}\\b|${safeVariable}\\s*->|${safeVariable}\\s*\\[)`);
 
   for (let index = 0; index < lines.length; index += 1) {
     if (derefRegex.test(lines[index])) {
@@ -273,7 +278,8 @@ function findFirstDerefLine(code, variable) {
 
 function hasNullCheckBeforeLine(code, variable, lineNumber) {
   const lines = code.split(/\r?\n/);
-  const checkRegex = new RegExp(`if\s*\(\s*${variable}\s*==\s*NULL\s*\)`);
+  const safeVariable = escapeRegExp(variable);
+  const checkRegex = new RegExp(`if\\s*\\(\\s*${safeVariable}\\s*==\\s*NULL\\s*\\)`);
 
   for (let index = 0; index < Math.max(0, lineNumber - 1); index += 1) {
     if (checkRegex.test(lines[index])) {
@@ -379,12 +385,13 @@ export function detectFindings(code, ast) {
       continue;
     }
 
+    const safeVariable = escapeRegExp(variable);
     const lines = code.split(/\r?\n/);
     const laterUse = lines.findIndex((line, index) => {
       if (index + 1 <= call.line) {
         return false;
       }
-      const pattern = new RegExp(`(?:\*\s*${variable}\b|${variable}\s*->|${variable}\s*\[)`);
+      const pattern = new RegExp(`(?:\\*\\s*${safeVariable}\\b|${safeVariable}\\s*->|${safeVariable}\\s*\\[)`);
       return pattern.test(line);
     });
 
@@ -463,6 +470,13 @@ function buildResponse(findings) {
       "The analysis found no obvious memory-safety issues.",
       "",
       "Suggested next step: keep the current structure, and add one or two targeted tests to lock in the behavior.",
+      "",
+      "Unified diff:",
+      "--- a/input.c",
+      "+++ b/input.c",
+      "@@ -1,1 +1,1 @@",
+      "-// no changes required",
+      "+// no changes required",
     ].join("\n");
   }
 
@@ -477,6 +491,59 @@ function buildResponse(findings) {
 
   const advice = kindToAdvice[primary.kind] || "Make the change as small as possible and keep the function signature stable.";
 
+  const diffByKind = {
+    malloc_without_free: [
+      "--- a/input.c",
+      "+++ b/input.c",
+      "@@ -1,5 +1,7 @@",
+      "-    return;",
+      "+    free(ptr);",
+      "+    return;",
+    ],
+    double_free: [
+      "--- a/input.c",
+      "+++ b/input.c",
+      "@@ -1,6 +1,7 @@",
+      "-    free(p);",
+      "-    free(p);",
+      "+    free(p);",
+      "+    p = NULL;",
+    ],
+    use_after_free: [
+      "--- a/input.c",
+      "+++ b/input.c",
+      "@@ -1,7 +1,7 @@",
+      "-    free(buf);",
+      "-    buf[0] = 'A';",
+      "+    buf[0] = 'A';",
+      "+    free(buf);",
+    ],
+    null_deref: [
+      "--- a/input.c",
+      "+++ b/input.c",
+      "@@ -1,5 +1,8 @@",
+      "+    if (ptr == NULL) {",
+      "+        return;",
+      "+    }",
+      "     *ptr = 1;",
+    ],
+    api_misuse: [
+      "--- a/input.c",
+      "+++ b/input.c",
+      "@@ -1,4 +1,4 @@",
+      "-    gets(name);",
+      "+    fgets(name, sizeof(name), stdin);",
+    ],
+  };
+
+  const diffLines = diffByKind[primary.kind] || [
+    "--- a/input.c",
+    "+++ b/input.c",
+    "@@ -1,1 +1,1 @@",
+    "-/* previous code */",
+    "+/* minimally updated code */",
+  ];
+
   return [
     `I found ${findings.length} issue${findings.length > 1 ? "s" : ""} during the mock analysis.`,
     `Primary finding: ${primary.kind} at line ${primary.line}.`,
@@ -484,6 +551,9 @@ function buildResponse(findings) {
     `Suggested fix: ${advice}`,
     "",
     "The verifier would re-parse the suggestion, compare the function signature, and reject a no-op or structural drift before showing the fix.",
+    "",
+    "Unified diff:",
+    ...diffLines,
   ].join("\n");
 }
 
